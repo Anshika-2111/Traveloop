@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Itinerary Builder - Traveloop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-body">
+
+<div class="builder-page">
+
+    <div class="builder-header">
+        <div>
+            <h1>Itinerary Builder</h1>
+            <p>Add cities, travel dates, and activities to your trip.</p>
+        </div>
+
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+
+    <div class="builder-grid">
+
+        <div class="builder-card">
+            <h2>Select Trip</h2>
+            <select id="tripSelect" onchange="loadStops()">
+                <option value="">Loading trips...</option>
+            </select>
+        </div>
+
+        <div class="builder-card">
+            <h2>Add Stop / City</h2>
+
+            <input type="text" id="cityName" placeholder="City Name">
+            <input type="text" id="countryName" placeholder="Country">
+            <input type="date" id="stopStartDate">
+            <input type="date" id="stopEndDate">
+
+            <button onclick="addStop()">Add Stop</button>
+
+            <p id="stopMessage"></p>
+        </div>
+
+        <div class="builder-card">
+            <h2>Add Activity</h2>
+
+            <select id="stopSelect">
+                <option value="">Select Stop</option>
+            </select>
+
+            <input type="text" id="activityName" placeholder="Activity Name">
+            <input type="text" id="activityType" placeholder="Activity Type">
+            <input type="number" id="activityCost" placeholder="Cost">
+            <input type="text" id="activityDuration" placeholder="Duration e.g. 2 hours">
+            <input type="date" id="activityDate">
+            <textarea id="activityNotes" placeholder="Notes"></textarea>
+
+            <button onclick="addActivity()">Add Activity</button>
+
+            <p id="activityMessage"></p>
+        </div>
+
+    </div>
+
+    <div class="builder-preview">
+        <h2>Stops Preview</h2>
+        <div id="stopsContainer"></div>
+    </div>
+
+</div>
+
+<script>
+const loggedUser = JSON.parse(localStorage.getItem("user"));
+
+if(!loggedUser){
+    window.location.href = "login.html";
+}
+
+async function loadTrips(){
+    const res = await fetch(`http://127.0.0.1:5000/trips/${loggedUser.id}`);
+    const trips = await res.json();
+
+    const tripSelect = document.getElementById("tripSelect");
+    tripSelect.innerHTML = `<option value="">Select Trip</option>`;
+
+    trips.forEach(trip => {
+        tripSelect.innerHTML += `
+            <option value="${trip.id}">${trip.title}</option>
+        `;
+    });
+}
+
+async function addStop(){
+    const tripId = document.getElementById("tripSelect").value;
+
+    if(!tripId){
+        alert("Please select trip first");
+        return;
+    }
+
+    const res = await fetch(`http://127.0.0.1:5000/trips/${tripId}/stops`,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            city_name:document.getElementById("cityName").value,
+            country:document.getElementById("countryName").value,
+            start_date:document.getElementById("stopStartDate").value,
+            end_date:document.getElementById("stopEndDate").value
+        })
+    });
+
+    const data = await res.json();
+    document.getElementById("stopMessage").innerText = data.message;
+
+    document.getElementById("cityName").value = "";
+    document.getElementById("countryName").value = "";
+    document.getElementById("stopStartDate").value = "";
+    document.getElementById("stopEndDate").value = "";
+
+    loadStops();
+}
+
+async function loadStops(){
+    const tripId = document.getElementById("tripSelect").value;
+
+    const stopsContainer = document.getElementById("stopsContainer");
+    const stopSelect = document.getElementById("stopSelect");
+
+    stopsContainer.innerHTML = "";
+    stopSelect.innerHTML = `<option value="">Select Stop</option>`;
+
+    if(!tripId) return;
+
+    const res = await fetch(`http://127.0.0.1:5000/trips/${tripId}/stops`);
+    const stops = await res.json();
+
+    if(stops.length === 0){
+        stopsContainer.innerHTML = `
+            <div class="empty-box">No stops added yet.</div>
+        `;
+        return;
+    }
+
+    stops.forEach(stop => {
+        stopsContainer.innerHTML += `
+            <div class="timeline-card">
+                <h3>${stop.city_name}, ${stop.country}</h3>
+                <p>${stop.start_date} - ${stop.end_date}</p>
+            </div>
+        `;
+
+        stopSelect.innerHTML += `
+            <option value="${stop.id}">${stop.city_name}</option>
+        `;
+    });
+}
+
+async function addActivity(){
+    const stopId = document.getElementById("stopSelect").value;
+
+    if(!stopId){
+        alert("Please select stop first");
+        return;
+    }
+
+    const res = await fetch(`http://127.0.0.1:5000/stops/${stopId}/activities`,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            name:document.getElementById("activityName").value,
+            activity_type:document.getElementById("activityType").value,
+            cost:document.getElementById("activityCost").value,
+            duration:document.getElementById("activityDuration").value,
+            activity_date:document.getElementById("activityDate").value,
+            notes:document.getElementById("activityNotes").value
+        })
+    });
+
+    const data = await res.json();
+    document.getElementById("activityMessage").innerText = data.message;
+
+    document.getElementById("activityName").value = "";
+    document.getElementById("activityType").value = "";
+    document.getElementById("activityCost").value = "";
+    document.getElementById("activityDuration").value = "";
+    document.getElementById("activityDate").value = "";
+    document.getElementById("activityNotes").value = "";
+}
+
+loadTrips();
+</script>
+
+</body>
+</html>

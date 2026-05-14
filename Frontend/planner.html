@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop Planner</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+
+<div class="planner-page">
+
+    <div class="planner-top">
+        <div>
+            <h1 id="plannerTripTitle">Trip Planner</h1>
+            <p class="page-subtitle">
+                Add cities, activities, and manage your itinerary.
+            </p>
+        </div>
+
+        <button onclick="window.location.href='dashboard.html'">
+            Back Dashboard
+        </button>
+    </div>
+
+    <div class="planner-box" style="margin-bottom:25px;">
+        <h2>Select Trip</h2>
+
+        <select id="tripSelector" onchange="changeTrip()">
+            <option value="">Loading trips...</option>
+        </select>
+    </div>
+
+    <div class="planner-summary">
+        <div class="summary-card">
+            <span>Trip Budget</span>
+            <h2 id="plannerBudget">₹0</h2>
+        </div>
+
+        <div class="summary-card">
+            <span>Total Stops</span>
+            <h2 id="plannerStops">0</h2>
+        </div>
+
+        <div class="summary-card">
+            <span>Activity Cost</span>
+            <h2 id="activityTotal">₹0</h2>
+        </div>
+
+        <div class="summary-card">
+            <span>Remaining Budget</span>
+            <h2 id="remainingBudget">₹0</h2>
+        </div>
+    </div>
+
+    <div class="planner-grid">
+
+        <div class="planner-left">
+
+            <div class="planner-box">
+                <h2>Add City Stop</h2>
+
+                <input type="text" id="cityName" placeholder="City Name">
+                <input type="text" id="countryName" placeholder="Country">
+                <input type="date" id="stopStartDate">
+                <input type="date" id="stopEndDate">
+
+                <button onclick="addStop()">Add Stop</button>
+
+                <p id="stopMsg"></p>
+            </div>
+
+            <div class="planner-box">
+                <h2>Add Activity</h2>
+
+                <select id="stopSelect">
+                    <option value="">Select City Stop</option>
+                </select>
+
+                <input type="text" id="activityName" placeholder="Activity Name">
+                <input type="text" id="activityType" placeholder="Activity Type">
+                <input type="number" id="activityCost" placeholder="Cost">
+                <input type="text" id="activityDuration" placeholder="Duration">
+                <input type="date" id="activityDate">
+                <textarea id="activityNotes" placeholder="Notes"></textarea>
+
+                <button onclick="addActivity()">Add Activity</button>
+
+                <p id="activityMsg"></p>
+            </div>
+
+        </div>
+
+        <div class="planner-right">
+            <div class="planner-box">
+                <h2>Live Itinerary</h2>
+
+                <div id="itineraryContainer">
+                    <div class="empty-box">
+                        Select a trip to start planning.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const plannerUser = JSON.parse(localStorage.getItem("user"));
+
+if(!plannerUser){
+    window.location.href = "login.html";
+}
+
+let selectedTripId = localStorage.getItem("selectedTripId");
+let allTrips = [];
+
+async function loadTrips(){
+    const res = await fetch(`http://127.0.0.1:5000/trips/${plannerUser.id}`);
+    allTrips = await res.json();
+
+    const selector = document.getElementById("tripSelector");
+
+    selector.innerHTML = `<option value="">Select Trip</option>`;
+
+    allTrips.forEach(trip => {
+        selector.innerHTML += `
+            <option value="${trip.id}">
+                ${trip.title}
+            </option>
+        `;
+    });
+
+    if(selectedTripId){
+        selector.value = selectedTripId;
+        loadTripDetails();
+        loadStops();
+    }
+}
+
+function changeTrip(){
+    selectedTripId = document.getElementById("tripSelector").value;
+
+    if(!selectedTripId) return;
+
+    localStorage.setItem("selectedTripId", selectedTripId);
+
+    loadTripDetails();
+    loadStops();
+}
+
+function loadTripDetails(){
+    const trip = allTrips.find(
+        t => String(t.id) === String(selectedTripId)
+    );
+
+    if(!trip) return;
+
+    document.getElementById("plannerTripTitle").innerText = trip.title;
+    document.getElementById("plannerBudget").innerText = `₹${trip.budget}`;
+    document.getElementById("remainingBudget").innerText = `₹${trip.budget}`;
+}
+
+async function addStop(){
+    if(!selectedTripId){
+        alert("Please select a trip first");
+        return;
+    }
+
+    const city = document.getElementById("cityName").value;
+    const country = document.getElementById("countryName").value;
+
+    if(!city || !country){
+        alert("Please enter city and country");
+        return;
+    }
+
+    const response = await fetch(
+        `http://127.0.0.1:5000/trips/${selectedTripId}/stops`,
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                city_name: city,
+                country: country,
+                start_date: document.getElementById("stopStartDate").value,
+                end_date: document.getElementById("stopEndDate").value
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    document.getElementById("stopMsg").innerText = data.message;
+
+    document.getElementById("cityName").value = "";
+    document.getElementById("countryName").value = "";
+    document.getElementById("stopStartDate").value = "";
+    document.getElementById("stopEndDate").value = "";
+
+    loadStops();
+}
+
+async function loadStops(){
+    if(!selectedTripId) return;
+
+    const res = await fetch(
+        `http://127.0.0.1:5000/trips/${selectedTripId}/stops`
+    );
+
+    const stops = await res.json();
+
+    document.getElementById("plannerStops").innerText = stops.length;
+
+    const stopSelect = document.getElementById("stopSelect");
+
+    stopSelect.innerHTML = `<option value="">Select City Stop</option>`;
+
+    const container = document.getElementById("itineraryContainer");
+
+    container.innerHTML = "";
+
+    if(stops.length === 0){
+        container.innerHTML = `
+            <div class="empty-box">
+                No city stops yet.
+            </div>
+        `;
+
+        document.getElementById("activityTotal").innerText = "₹0";
+
+        const trip = allTrips.find(
+            t => String(t.id) === String(selectedTripId)
+        );
+
+        if(trip){
+            document.getElementById("remainingBudget").innerText = `₹${trip.budget}`;
+        }
+
+        return;
+    }
+
+    let totalActivityCost = 0;
+
+    for(const stop of stops){
+        stopSelect.innerHTML += `
+            <option value="${stop.id}">
+                ${stop.city_name}
+            </option>
+        `;
+
+        const stopCard = document.createElement("div");
+
+        stopCard.classList.add("timeline-card");
+
+        stopCard.innerHTML = `
+            <div class="timeline-dot"></div>
+
+            <div class="stop-top">
+                <h3>${stop.city_name}, ${stop.country}</h3>
+
+                <button onclick="deleteStop(${stop.id})">
+                    Delete
+                </button>
+            </div>
+
+            <p>${stop.start_date} - ${stop.end_date}</p>
+
+            <div id="activities-${stop.id}"></div>
+        `;
+
+        container.appendChild(stopCard);
+
+        const activityCost = await loadActivities(stop.id);
+
+        totalActivityCost += activityCost;
+    }
+
+    document.getElementById("activityTotal").innerText = `₹${totalActivityCost}`;
+
+    const trip = allTrips.find(
+        t => String(t.id) === String(selectedTripId)
+    );
+
+    if(trip){
+        const remaining = Number(trip.budget || 0) - totalActivityCost;
+
+        document.getElementById("remainingBudget").innerText = `₹${remaining}`;
+
+        if(remaining < 0){
+            document.getElementById("remainingBudget").style.color = "red";
+        }else{
+            document.getElementById("remainingBudget").style.color = "#0f172a";
+        }
+    }
+}
+
+async function addActivity(){
+    const stopId = document.getElementById("stopSelect").value;
+
+    if(!stopId){
+        alert("Please select a city stop first");
+        return;
+    }
+
+    const activityName = document.getElementById("activityName").value;
+
+    if(!activityName){
+        alert("Please enter activity name");
+        return;
+    }
+
+    const response = await fetch(
+        `http://127.0.0.1:5000/stops/${stopId}/activities`,
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                name: activityName,
+                activity_type: document.getElementById("activityType").value,
+                cost: document.getElementById("activityCost").value,
+                duration: document.getElementById("activityDuration").value,
+                activity_date: document.getElementById("activityDate").value,
+                notes: document.getElementById("activityNotes").value
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    document.getElementById("activityMsg").innerText = data.message;
+
+    document.getElementById("activityName").value = "";
+    document.getElementById("activityType").value = "";
+    document.getElementById("activityCost").value = "";
+    document.getElementById("activityDuration").value = "";
+    document.getElementById("activityDate").value = "";
+    document.getElementById("activityNotes").value = "";
+
+    loadStops();
+}
+
+async function loadActivities(stopId){
+    const res = await fetch(
+        `http://127.0.0.1:5000/stops/${stopId}/activities`
+    );
+
+    const activities = await res.json();
+
+    const box = document.getElementById(`activities-${stopId}`);
+
+    box.innerHTML = "";
+
+    if(activities.length === 0){
+        box.innerHTML = `
+            <p class="muted-text">
+                No activities added yet.
+            </p>
+        `;
+
+        return 0;
+    }
+
+    let cost = 0;
+
+    activities.forEach(activity => {
+        cost += Number(activity.cost || 0);
+
+        box.innerHTML += `
+            <div class="activity-card">
+
+                <div class="activity-top">
+                    <h4>${activity.name}</h4>
+
+                    <button onclick="deleteActivity(${activity.id})">
+                        ✕
+                    </button>
+                </div>
+
+                <p>${activity.activity_type}</p>
+
+                <p>
+                    ₹${activity.cost}
+                    •
+                    ${activity.duration}
+                </p>
+
+                <small>
+                    ${activity.activity_date}
+                </small>
+
+                <p>
+                    ${activity.notes || ""}
+                </p>
+
+            </div>
+        `;
+    });
+
+    return cost;
+}
+
+async function deleteActivity(activityId){
+    const confirmDelete = confirm("Delete this activity?");
+
+    if(!confirmDelete) return;
+
+    await fetch(
+        `http://127.0.0.1:5000/activities/${activityId}`,
+        {
+            method:"DELETE"
+        }
+    );
+
+    loadStops();
+}
+
+async function deleteStop(stopId){
+    const confirmDelete = confirm("Delete this stop and all activities?");
+
+    if(!confirmDelete) return;
+
+    await fetch(
+        `http://127.0.0.1:5000/stops/${stopId}`,
+        {
+            method:"DELETE"
+        }
+    );
+
+    loadStops();
+}
+
+loadTrips();
+</script>
+
+</body>
+</html>

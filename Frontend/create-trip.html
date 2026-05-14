@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Trip - Traveloop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+
+<div class="form-page">
+
+    <div class="trip-form-card">
+        <h1>Create New Trip ✈</h1>
+
+        <input type="text" id="tripTitle" placeholder="Trip Title">
+        <textarea id="tripDescription" placeholder="Trip Description"></textarea>
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
+        <input type="number" id="budget" placeholder="Budget">
+
+        <button onclick="createTrip()">Save Trip</button>
+<button type="button" onclick="window.location.href='dashboard.html'" style="margin-top:10px;background:#0f172a;">
+    Back to Dashboard
+</button>
+
+        <p id="tripMessage"></p>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

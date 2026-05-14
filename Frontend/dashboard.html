@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <div>
+            <h2>Traveloop ✈</h2>
+
+            <div class="sidebar-menu">
+
+                <div class="sidebar-item active">
+                    Dashboard
+                </div>
+
+                <div class="sidebar-item"
+                     onclick="window.location.href='create-trip.html'">
+                    Create Trip
+                </div>
+
+                <div class="sidebar-item"
+                     onclick="window.location.href='planner.html'">
+                    Planner
+                </div>
+
+                <div class="sidebar-item"
+                     onclick="logoutUser()">
+                    Logout
+                </div>
+
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            Travel beautifully 🌍
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="dashboard-main">
+
+        <!-- HERO -->
+        <div class="dashboard-hero">
+
+            <div>
+                <p class="hero-small-text">
+                    Personalized Multi-City Travel Planner
+                </p>
+
+                <h1 id="welcomeText">
+                    Welcome Back
+                </h1>
+
+                <p class="hero-description">
+                    Organize trips, track budgets,
+                    and build itineraries beautifully.
+                </p>
+
+                <button onclick="window.location.href='create-trip.html'">
+                    + Create New Trip
+                </button>
+            </div>
+
+            <div class="hero-glass-card">
+
+                <span>Upcoming Journey</span>
+
+                <h2>Explore Your Next Adventure ✈</h2>
+
+                <div class="hero-mini-stats">
+                    <div>
+                        <strong id="heroTrips">0</strong>
+                        <p>Trips</p>
+                    </div>
+
+                    <div>
+                        <strong id="heroBudget">₹0</strong>
+                        <p>Budget</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SECTION -->
+        <div class="dashboard-section">
+
+            <div class="section-top">
+
+                <h2>My Trips</h2>
+
+                <button onclick="window.location.href='create-trip.html'">
+                    Add Trip
+                </button>
+
+            </div>
+
+            <div id="tripCardsContainer" class="trip-cards-grid">
+
+                <!-- cards injected -->
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+
+const dashboardUser = JSON.parse(localStorage.getItem("user"));
+
+if(!dashboardUser){
+    window.location.href = "login.html";
+}
+
+document.getElementById("welcomeText").innerText =
+    `Welcome, ${dashboardUser.name} 👋`;
+
+async function loadDashboard(){
+
+    const res =
+        await fetch(`http://127.0.0.1:5000/trips/${dashboardUser.id}`);
+
+    const trips = await res.json();
+
+    const container =
+        document.getElementById("tripCardsContainer");
+
+    container.innerHTML = "";
+
+    let totalBudget = 0;
+
+    trips.forEach(trip => {
+
+        totalBudget += Number(trip.budget || 0);
+
+        container.innerHTML += `
+            <div class="modern-trip-card">
+
+                <div class="trip-gradient"></div>
+
+                <div class="trip-content">
+
+                    <span class="trip-badge">
+                        Active Trip
+                    </span>
+
+                    <h3>${trip.title}</h3>
+
+                    <p class="trip-description">
+                        ${trip.description}
+                    </p>
+
+                    <div class="trip-meta">
+
+                        <div>
+                            <small>Dates</small>
+                            <strong>
+                                ${trip.start_date}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <small>Budget</small>
+                            <strong>
+                                ₹${trip.budget}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="trip-actions">
+
+                        <button class="planner-btn"
+                                onclick="openPlanner(${trip.id})">
+
+                            Open Planner
+
+                        </button>
+
+                        <button class="delete-trip-btn"
+                                onclick="deleteTrip(${trip.id})">
+
+                            Delete
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+    });
+
+    if(trips.length === 0){
+
+        container.innerHTML = `
+            <div class="empty-dashboard">
+
+                <h3>No Trips Yet</h3>
+
+                <p>
+                    Create your first trip and start planning.
+                </p>
+
+                <button onclick="window.location.href='create-trip.html'">
+                    Create Trip
+                </button>
+
+            </div>
+        `;
+    }
+
+    document.getElementById("heroTrips").innerText =
+        trips.length;
+
+    document.getElementById("heroBudget").innerText =
+        `₹${totalBudget}`;
+}
+
+function openPlanner(tripId){
+
+    localStorage.setItem("selectedTripId", tripId);
+
+    window.location.href = "planner.html";
+}
+
+async function deleteTrip(tripId){
+
+    const confirmDelete =
+        confirm("Delete this entire trip?");
+
+    if(!confirmDelete) return;
+
+    await fetch(
+        `http://127.0.0.1:5000/trips/${tripId}`,
+        {
+            method:"DELETE"
+        }
+    );
+
+    loadDashboard();
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
