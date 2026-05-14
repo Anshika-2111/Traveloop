@@ -80,9 +80,17 @@ async function signupUser(){
 
     if(response.ok){
 
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        setTimeout(()=>{
+            window.location.href = "dashboard.html";
+        },1000);
+
+    }else if(data.redirect === "login"){
+
         setTimeout(()=>{
             window.location.href = "login.html";
-        },1000);
+        },1200);
     }
 }
 
