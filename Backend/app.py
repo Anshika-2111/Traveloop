@@ -24,8 +24,12 @@ def signup():
     data = request.json
 
     existing_user = User.query.filter_by(email=data.get("email")).first()
+
     if existing_user:
-        return jsonify({"message": "Email already exists"}), 400
+        return jsonify({
+            "message": "Email already exists. Redirecting to login...",
+            "redirect": "login"
+        }), 400
 
     hashed_password = bcrypt.generate_password_hash(
         data.get("password")
@@ -40,7 +44,14 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return jsonify({
+        "message": "Account created successfully",
+        "user": {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email
+        }
+    }), 201
 
 
 @app.route("/login", methods=["POST"])
@@ -211,25 +222,18 @@ def delete_activity(activity_id):
 
     return jsonify({"message": "Activity deleted successfully"}), 200
 
+
 @app.route("/trips/<int:trip_id>", methods=["DELETE"])
 def delete_trip(trip_id):
-
     trip = Trip.query.get(trip_id)
 
     if not trip:
-        return jsonify({
-            "message": "Trip not found"
-        }), 404
+        return jsonify({"message": "Trip not found"}), 404
 
-    stops = Stop.query.filter_by(
-        trip_id=trip_id
-    ).all()
+    stops = Stop.query.filter_by(trip_id=trip_id).all()
 
     for stop in stops:
-
-        activities = Activity.query.filter_by(
-            stop_id=stop.id
-        ).all()
+        activities = Activity.query.filter_by(stop_id=stop.id).all()
 
         for activity in activities:
             db.session.delete(activity)
@@ -237,12 +241,10 @@ def delete_trip(trip_id):
         db.session.delete(stop)
 
     db.session.delete(trip)
-
     db.session.commit()
 
-    return jsonify({
-        "message": "Trip deleted successfully"
-    }), 200
+    return jsonify({"message": "Trip deleted successfully"}), 200
+
 
 if __name__ == "__main__":
     with app.app_context():
