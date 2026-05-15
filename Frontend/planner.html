@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body class="dashboard-body">
@@ -27,7 +27,7 @@
         </button>
     </div>
 
-    <div class="planner-box" style="margin-bottom:25px;">
+    <div class="planner-box select-trip-box">
         <h2>Select Trip</h2>
 
         <select id="tripSelector" onchange="changeTrip()">
@@ -77,7 +77,7 @@
             <div class="planner-box">
                 <h2>Add Activity</h2>
 
-                <select id="stopSelect">
+                <select id="stopSelect" onchange="updateActivityDate()">
                     <option value="">Select City Stop</option>
                 </select>
 
@@ -96,7 +96,7 @@
         </div>
 
         <div class="planner-right">
-            <div class="planner-box">
+            <div class="planner-box itinerary-box">
                 <h2>Live Itinerary</h2>
 
                 <div id="itineraryContainer">
@@ -120,6 +120,8 @@ if(!plannerUser){
 
 let selectedTripId = localStorage.getItem("selectedTripId");
 let allTrips = [];
+let currentStops = [];
+let currentTrip = null;
 
 async function loadTrips(){
     const res = await fetch(`http://127.0.0.1:5000/trips/${plannerUser.id}`);
@@ -162,9 +164,26 @@ function loadTripDetails(){
 
     if(!trip) return;
 
+    currentTrip = trip;
+
     document.getElementById("plannerTripTitle").innerText = trip.title;
     document.getElementById("plannerBudget").innerText = `₹${trip.budget}`;
     document.getElementById("remainingBudget").innerText = `₹${trip.budget}`;
+
+    const stopStart = document.getElementById("stopStartDate");
+    const stopEnd = document.getElementById("stopEndDate");
+
+    if(trip.start_date){
+        stopStart.min = trip.start_date;
+        stopEnd.min = trip.start_date;
+        stopStart.value = trip.start_date;
+    }
+
+    if(trip.end_date){
+        stopStart.max = trip.end_date;
+        stopEnd.max = trip.end_date;
+        stopEnd.value = trip.end_date;
+    }
 }
 
 async function addStop(){
@@ -173,11 +192,23 @@ async function addStop(){
         return;
     }
 
-    const city = document.getElementById("cityName").value;
-    const country = document.getElementById("countryName").value;
+    const city = document.getElementById("cityName").value.trim();
+    const country = document.getElementById("countryName").value.trim();
+    const startDate = document.getElementById("stopStartDate").value;
+    const endDate = document.getElementById("stopEndDate").value;
 
     if(!city || !country){
         alert("Please enter city and country");
+        return;
+    }
+
+    if(!startDate || !endDate){
+        alert("Please select stop start and end date");
+        return;
+    }
+
+    if(new Date(endDate) < new Date(startDate)){
+        alert("Stop end date cannot be before start date");
         return;
     }
 
@@ -191,8 +222,8 @@ async function addStop(){
             body: JSON.stringify({
                 city_name: city,
                 country: country,
-                start_date: document.getElementById("stopStartDate").value,
-                end_date: document.getElementById("stopEndDate").value
+                start_date: startDate,
+                end_date: endDate
             })
         }
     );
@@ -203,8 +234,11 @@ async function addStop(){
 
     document.getElementById("cityName").value = "";
     document.getElementById("countryName").value = "";
-    document.getElementById("stopStartDate").value = "";
-    document.getElementById("stopEndDate").value = "";
+
+    if(currentTrip){
+        document.getElementById("stopStartDate").value = currentTrip.start_date;
+        document.getElementById("stopEndDate").value = currentTrip.end_date;
+    }
 
     loadStops();
 }
@@ -217,6 +251,8 @@ async function loadStops(){
     );
 
     const stops = await res.json();
+
+    currentStops = stops;
 
     document.getElementById("plannerStops").innerText = stops.length;
 
@@ -237,6 +273,11 @@ async function loadStops(){
 
         document.getElementById("activityTotal").innerText = "₹0";
 
+        const activityDate = document.getElementById("activityDate");
+        activityDate.value = "";
+        activityDate.removeAttribute("min");
+        activityDate.removeAttribute("max");
+
         const trip = allTrips.find(
             t => String(t.id) === String(selectedTripId)
         );
@@ -252,7 +293,11 @@ async function loadStops(){
 
     for(const stop of stops){
         stopSelect.innerHTML += `
-            <option value="${stop.id}">
+            <option 
+                value="${stop.id}"
+                data-start="${stop.start_date}"
+                data-end="${stop.end_date}"
+            >
                 ${stop.city_name}
             </option>
         `;
@@ -264,17 +309,20 @@ async function loadStops(){
         stopCard.innerHTML = `
             <div class="timeline-dot"></div>
 
-            <div class="stop-top">
-                <h3>${stop.city_name}, ${stop.country}</h3>
+            <div class="timeline-content">
+                <div class="stop-top">
+                    <div>
+                        <h3>${stop.city_name}, ${stop.country}</h3>
+                        <p>${stop.start_date} - ${stop.end_date}</p>
+                    </div>
 
-                <button onclick="deleteStop(${stop.id})">
-                    Delete
-                </button>
+                    <button onclick="deleteStop(${stop.id})">
+                        Delete
+                    </button>
+                </div>
+
+                <div id="activities-${stop.id}"></div>
             </div>
-
-            <p>${stop.start_date} - ${stop.end_date}</p>
-
-            <div id="activities-${stop.id}"></div>
         `;
 
         container.appendChild(stopCard);
@@ -298,9 +346,31 @@ async function loadStops(){
         if(remaining < 0){
             document.getElementById("remainingBudget").style.color = "red";
         }else{
-            document.getElementById("remainingBudget").style.color = "#0f172a";
+            document.getElementById("remainingBudget").style.color = "#2e1065";
         }
     }
+}
+
+function updateActivityDate(){
+    const stopId = document.getElementById("stopSelect").value;
+    const activityDate = document.getElementById("activityDate");
+
+    if(!stopId){
+        activityDate.value = "";
+        activityDate.removeAttribute("min");
+        activityDate.removeAttribute("max");
+        return;
+    }
+
+    const selectedStop = currentStops.find(
+        stop => String(stop.id) === String(stopId)
+    );
+
+    if(!selectedStop) return;
+
+    activityDate.min = selectedStop.start_date;
+    activityDate.max = selectedStop.end_date;
+    activityDate.value = selectedStop.start_date;
 }
 
 async function addActivity(){
@@ -311,11 +381,33 @@ async function addActivity(){
         return;
     }
 
-    const activityName = document.getElementById("activityName").value;
+    const selectedStop = currentStops.find(
+        stop => String(stop.id) === String(stopId)
+    );
+
+    const activityName = document.getElementById("activityName").value.trim();
+    const activityDate = document.getElementById("activityDate").value;
 
     if(!activityName){
         alert("Please enter activity name");
         return;
+    }
+
+    if(!activityDate){
+        alert("Please select activity date");
+        return;
+    }
+
+    if(selectedStop){
+        if(new Date(activityDate) < new Date(selectedStop.start_date)){
+            alert("Activity date cannot be before stop start date");
+            return;
+        }
+
+        if(new Date(activityDate) > new Date(selectedStop.end_date)){
+            alert("Activity date cannot be after stop end date");
+            return;
+        }
     }
 
     const response = await fetch(
@@ -330,7 +422,7 @@ async function addActivity(){
                 activity_type: document.getElementById("activityType").value,
                 cost: document.getElementById("activityCost").value,
                 duration: document.getElementById("activityDuration").value,
-                activity_date: document.getElementById("activityDate").value,
+                activity_date: activityDate,
                 notes: document.getElementById("activityNotes").value
             })
         }
@@ -344,9 +436,9 @@ async function addActivity(){
     document.getElementById("activityType").value = "";
     document.getElementById("activityCost").value = "";
     document.getElementById("activityDuration").value = "";
-    document.getElementById("activityDate").value = "";
     document.getElementById("activityNotes").value = "";
 
+    updateActivityDate();
     loadStops();
 }
 

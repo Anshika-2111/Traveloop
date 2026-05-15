@@ -4,53 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traveloop Signup</title>
-
     <link rel="stylesheet" href="style.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-    <div class="signup-container">
+<div class="signup-container auth-card">
 
-        <div class="left-panel">
+    <div class="left-panel classy-panel">
+        <div class="auth-badge">TRAVELOOP</div>
 
-            <h1>Traveloop ✈</h1>
+        <h1>Design your dream journey.</h1>
 
-            <p>
-                Plan your dream journeys,
-                explore amazing destinations,
-                and organize trips beautifully.
+        <p>
+            Build elegant travel plans, organize city stops,
+            track your budget, and turn every trip into a beautiful itinerary.
+        </p>
+
+        <div class="auth-mini-card">
+            <span>Next Escape</span>
+            <strong>Paris • Seoul • Scotland</strong>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="form-box">
+
+            <h2>Create Account</h2>
+            <p class="form-subtitle">Start planning your next beautiful escape.</p>
+
+            <input type="text" id="name" placeholder="Full Name">
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+
+            <button onclick="signupUser()">Create Account</button>
+
+            <p id="message"></p>
+
+            <p class="switch-link">
+                Already have an account?
+                <a href="login.html">Login</a>
             </p>
 
         </div>
-
-        <div class="right-panel">
-
-            <div class="form-box">
-
-                <h2>Create Account</h2>
-
-                <input type="text" id="name" placeholder="Full Name">
-
-                <input type="email" id="email" placeholder="Email Address">
-
-                <input type="password" id="password" placeholder="Password">
-
-                <button onclick="signupUser()">
-                    Signup
-                </button>
-
-                <p id="message"></p>
-
-            </div>
-
-        </div>
-
     </div>
 
-    <script src="script.js"></script>
+</div>
 
+<script src="script.js"></script>
 </body>
 </html>

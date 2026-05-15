@@ -2,28 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Trip - Traveloop</title>
+
     <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="dashboard-body">
 
-<div class="form-page">
+<body class="dashboard-body create-trip-body">
 
-    <div class="trip-form-card">
+<div class="create-trip-page">
+
+    <div class="create-trip-hero">
+        <span>NEW JOURNEY</span>
+
+        <h1>Create your next beautiful escape.</h1>
+
+        <p>
+            Add your trip details, choose your travel dates,
+            and start building a dreamy itinerary.
+        </p>
+
+        <button onclick="window.location.href='dashboard.html'">
+            ← Back to Dashboard
+        </button>
+    </div>
+
+    <div class="trip-form-card premium-trip-card">
+
         <h1>Create New Trip ✈</h1>
+        <p class="form-subtitle">Start with the basics. You can add stops and activities later.</p>
 
-        <input type="text" id="tripTitle" placeholder="Trip Title">
-        <textarea id="tripDescription" placeholder="Trip Description"></textarea>
-        <input type="date" id="startDate">
-        <input type="date" id="endDate">
-        <input type="number" id="budget" placeholder="Budget">
+        <input type="text" id="tripTitle" placeholder="Trip Title e.g. Scotland Escape">
+
+        <textarea id="tripDescription" placeholder="Short trip description"></textarea>
+
+        <div class="date-grid">
+            <input type="date" id="startDate">
+            <input type="date" id="endDate">
+        </div>
+
+        <input type="number" id="budget" placeholder="Budget in ₹">
 
         <button onclick="createTrip()">Save Trip</button>
-<button type="button" onclick="window.location.href='dashboard.html'" style="margin-top:10px;background:#0f172a;">
-    Back to Dashboard
-</button>
 
         <p id="tripMessage"></p>
+
     </div>
 
 </div>
