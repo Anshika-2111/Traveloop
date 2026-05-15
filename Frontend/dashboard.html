@@ -14,7 +14,6 @@
 
 <div class="dashboard-layout">
 
-    <!-- SIDEBAR -->
     <div class="sidebar">
 
         <div>
@@ -50,10 +49,8 @@
 
     </div>
 
-    <!-- MAIN -->
     <div class="dashboard-main">
 
-        <!-- HERO -->
         <div class="dashboard-hero">
 
             <div>
@@ -97,7 +94,6 @@
 
         </div>
 
-        <!-- SECTION -->
         <div class="dashboard-section">
 
             <div class="section-top">
@@ -110,11 +106,7 @@
 
             </div>
 
-            <div id="tripCardsContainer" class="trip-cards-grid">
-
-                <!-- cards injected -->
-
-            </div>
+            <div id="tripCardsContainer" class="trip-cards-grid"></div>
 
         </div>
 
@@ -135,6 +127,28 @@ if(!dashboardUser){
 document.getElementById("welcomeText").innerText =
     `Welcome, ${dashboardUser.name} 👋`;
 
+
+/* ROTATING TRIP IMAGES */
+
+const tripImages = [
+
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1400&auto=format&fit=crop",
+
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1400&auto=format&fit=crop",
+
+    "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1400&auto=format&fit=crop",
+
+    "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1400&auto=format&fit=crop"
+];
+
+function getTripImage(index){
+
+    return tripImages[index % tripImages.length];
+}
+
+
+/* LOAD DASHBOARD */
+
 async function loadDashboard(){
 
     const res =
@@ -149,14 +163,16 @@ async function loadDashboard(){
 
     let totalBudget = 0;
 
-    trips.forEach(trip => {
+    trips.forEach((trip, index) => {
 
         totalBudget += Number(trip.budget || 0);
 
         container.innerHTML += `
             <div class="modern-trip-card">
 
-                <div class="trip-gradient"></div>
+                <div class="trip-gradient"
+                     style="background-image:url('${getTripImage(index)}')">
+                </div>
 
                 <div class="trip-content">
 
@@ -167,13 +183,13 @@ async function loadDashboard(){
                     <h3>${trip.title}</h3>
 
                     <p class="trip-description">
-                        ${trip.description}
+                        ${trip.description || "No description added yet."}
                     </p>
 
                     <div class="trip-meta">
 
                         <div>
-                            <small>Dates</small>
+                            <small>Start Date</small>
                             <strong>
                                 ${trip.start_date}
                             </strong>
@@ -192,16 +208,12 @@ async function loadDashboard(){
 
                         <button class="planner-btn"
                                 onclick="openPlanner(${trip.id})">
-
                             Open Planner
-
                         </button>
 
                         <button class="delete-trip-btn"
                                 onclick="deleteTrip(${trip.id})">
-
                             Delete
-
                         </button>
 
                     </div>
@@ -238,12 +250,18 @@ async function loadDashboard(){
         `₹${totalBudget}`;
 }
 
+
+/* OPEN PLANNER */
+
 function openPlanner(tripId){
 
     localStorage.setItem("selectedTripId", tripId);
 
     window.location.href = "planner.html";
 }
+
+
+/* DELETE TRIP */
 
 async function deleteTrip(tripId){
 
@@ -261,6 +279,9 @@ async function deleteTrip(tripId){
 
     loadDashboard();
 }
+
+
+/* INITIAL LOAD */
 
 loadDashboard();
 
