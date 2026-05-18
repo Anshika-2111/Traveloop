@@ -1717,3 +1717,442 @@ body:not(.dashboard-body):not(.landing-body){
         font-size:44px;
     }
 }
+/* DASHBOARD ANALYTICS */
+
+.analytics-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    margin-top:26px;
+}
+
+.analytics-card{
+    background:rgba(255,255,255,0.78);
+    backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.85);
+    border-radius:30px;
+    padding:28px;
+    box-shadow:0 18px 45px rgba(109,40,217,0.08);
+}
+
+.analytics-card span{
+    color:#8b5cf6;
+    font-size:13px;
+    font-weight:700;
+}
+
+.analytics-card h2{
+    font-size:38px;
+    color:#2e1065;
+    margin:12px 0;
+}
+
+.analytics-card p{
+    color:#6b5b85;
+    line-height:1.7;
+}
+
+.analytics-progress{
+    width:100%;
+    height:12px;
+    background:#ede9fe;
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:18px;
+}
+
+.analytics-progress div{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(135deg,#7c3aed,#c084fc);
+}
+
+.analytics-card.warning .analytics-progress div{
+    background:linear-gradient(135deg,#ef4444,#fb7185);
+}
+
+.analytics-card.success .analytics-progress div{
+    background:linear-gradient(135deg,#10b981,#34d399);
+}
+
+@media(max-width:950px){
+
+    .analytics-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+/* FINAL MOBILE RESPONSIVE FIXES */
+
+@media(max-width:1100px){
+
+    .dashboard-layout{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        padding:22px;
+    }
+
+    .sidebar-menu{
+        flex-direction:row;
+        flex-wrap:wrap;
+    }
+
+    .sidebar-footer{
+        display:none;
+    }
+
+    .dashboard-hero{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .hero-glass-card{
+        width:100%;
+    }
+
+    .planner-grid{
+        grid-template-columns:1fr;
+    }
+
+    .planner-left{
+        order:2;
+    }
+
+    .planner-right{
+        order:1;
+    }
+
+    .create-trip-page{
+        grid-template-columns:1fr;
+    }
+
+    .auth-card{
+        width:100%;
+        min-height:auto;
+        flex-direction:column;
+    }
+
+    .left-panel,
+    .right-panel{
+        width:100%;
+    }
+
+}
+
+@media(max-width:768px){
+
+    body{
+        overflow-x:hidden;
+    }
+
+    .dashboard-layout{
+        padding:14px;
+    }
+
+    .dashboard-hero{
+        padding:30px 24px;
+        border-radius:28px;
+    }
+
+    .dashboard-hero h1{
+        font-size:38px;
+    }
+
+    .hero-description{
+        font-size:15px;
+    }
+
+    .hero-glass-card{
+        padding:24px;
+    }
+
+    .hero-glass-card h2{
+        font-size:24px;
+    }
+
+    .section-top{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:16px;
+    }
+
+    .section-top h2{
+        font-size:28px;
+    }
+
+    .trip-cards-grid{
+        grid-template-columns:1fr;
+    }
+
+    .planner-page{
+        padding:18px;
+    }
+
+    .planner-top{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:16px;
+    }
+
+    .planner-top h1{
+        font-size:36px;
+    }
+
+    .planner-summary{
+        grid-template-columns:1fr;
+    }
+
+    .timeline-card{
+        padding-left:62px !important;
+    }
+
+    .timeline-card::before{
+        left:28px !important;
+    }
+
+    .timeline-dot{
+        left:20px !important;
+    }
+
+    .stop-top{
+        flex-direction:column !important;
+        align-items:flex-start !important;
+    }
+
+    .activity-top{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .create-trip-page{
+        padding:20px;
+    }
+
+    .create-trip-hero h1{
+        font-size:38px;
+    }
+
+    .premium-trip-card{
+        padding:28px;
+    }
+
+    .date-grid{
+        grid-template-columns:1fr;
+    }
+
+    .landing-navbar{
+        flex-direction:column;
+        gap:18px;
+        text-align:center;
+    }
+
+    .premium-landing-hero{
+        flex-direction:column;
+        padding:30px 6% 50px;
+    }
+
+    .hero-content h1{
+        font-size:44px;
+    }
+
+    .hero-buttons{
+        flex-direction:column;
+        width:100%;
+    }
+
+    .hero-buttons button{
+        width:100%;
+    }
+
+    .landing-preview-card{
+        width:100%;
+    }
+
+    .premium-features{
+        grid-template-columns:1fr;
+    }
+
+    .analytics-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .sidebar{
+        padding:18px;
+        border-radius:24px;
+    }
+
+    .sidebar h2{
+        font-size:24px;
+    }
+
+    .sidebar-menu{
+        gap:10px;
+    }
+
+    .sidebar-item{
+        width:100%;
+        text-align:center;
+    }
+
+    .dashboard-hero h1{
+        font-size:32px;
+    }
+
+    .hero-small-text{
+        font-size:11px;
+    }
+
+    .hero-glass-card h2{
+        font-size:22px;
+    }
+
+    .trip-content h3{
+        font-size:22px;
+    }
+
+    .trip-meta{
+        grid-template-columns:1fr;
+    }
+
+    .trip-actions{
+        flex-direction:column;
+    }
+
+    .delete-trip-btn{
+        width:100% !important;
+        height:50px;
+    }
+
+    .planner-top h1{
+        font-size:30px;
+    }
+
+    .timeline-card{
+        padding:22px 18px 22px 56px !important;
+    }
+
+    .timeline-card::before{
+        left:24px !important;
+    }
+
+    .timeline-dot{
+        left:16px !important;
+    }
+
+    .create-trip-hero h1{
+        font-size:32px;
+    }
+
+    .premium-trip-card{
+        padding:22px;
+        border-radius:24px;
+    }
+
+    .premium-trip-card h1{
+        font-size:28px;
+    }
+
+    .hero-content h1{
+        font-size:36px;
+    }
+
+    .hero-content p{
+        font-size:15px;
+    }
+
+    .landing-navbar button{
+        width:100%;
+    }
+
+}
+/* AUTH MOBILE FIX */
+
+@media(max-width:768px){
+
+    .signup-container{
+        width:100%;
+        min-height:auto;
+        border-radius:28px;
+        overflow:hidden;
+    }
+
+    .left-panel{
+        min-height:280px;
+        padding:40px 28px;
+        justify-content:flex-end;
+    }
+
+    .left-panel h1{
+        font-size:52px;
+        line-height:0.95;
+    }
+
+    .left-panel p{
+        font-size:15px;
+        max-width:100%;
+    }
+
+    .travel-badge{
+        padding:14px 18px;
+        font-size:13px;
+    }
+
+    .right-panel{
+        padding:40px 24px;
+    }
+
+    .form-box h2{
+        font-size:42px;
+    }
+
+}
+/* STRONG AUTH MOBILE CLEANUP */
+
+@media(max-width:600px){
+
+    body:not(.dashboard-body):not(.landing-body){
+        padding:16px;
+        align-items:flex-start;
+    }
+
+    .signup-container{
+        width:100%;
+        display:block;
+        border-radius:26px;
+        margin-top:10px;
+    }
+
+    .left-panel{
+        display:none;
+    }
+
+    .right-panel{
+        width:100%;
+        padding:34px 22px;
+        border-radius:26px;
+    }
+
+    .form-box{
+        max-width:100%;
+    }
+
+    .form-box h2{
+        font-size:34px;
+    }
+
+    .form-subtitle{
+        font-size:14px;
+        margin-bottom:24px;
+    }
+}

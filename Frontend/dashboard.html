@@ -51,6 +51,8 @@
 
     <div class="dashboard-main">
 
+        <!-- HERO -->
+
         <div class="dashboard-hero">
 
             <div>
@@ -93,6 +95,62 @@
             </div>
 
         </div>
+
+        <!-- ANALYTICS -->
+
+        <div class="analytics-grid">
+
+            <div class="analytics-card">
+
+                <span>Total Budget</span>
+
+                <h2 id="analyticsBudget">₹0</h2>
+
+                <p>
+                    Combined budget across all your trips.
+                </p>
+
+                <div class="analytics-progress">
+                    <div style="width:100%"></div>
+                </div>
+
+            </div>
+
+            <div class="analytics-card warning">
+
+                <span>Total Trips</span>
+
+                <h2 id="analyticsTrips">0</h2>
+
+                <p>
+                    Total journeys currently planned.
+                </p>
+
+                <div class="analytics-progress">
+                    <div id="tripProgressBar" style="width:40%"></div>
+                </div>
+
+            </div>
+
+            <div class="analytics-card success">
+
+                <span>Travel Status</span>
+
+                <h2 id="analyticsStatus">Active</h2>
+
+                <p>
+                    Your travel planning system is running beautifully.
+                </p>
+
+                <div class="analytics-progress">
+                    <div style="width:85%"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TRIPS -->
 
         <div class="dashboard-section">
 
@@ -163,9 +221,27 @@ async function loadDashboard(){
 
     let totalBudget = 0;
 
-    trips.forEach((trip, index) => {
-
+    trips.forEach((trip) => {
         totalBudget += Number(trip.budget || 0);
+    });
+
+    /* ANALYTICS */
+
+    document.getElementById("analyticsTrips").innerText =
+        trips.length;
+
+    document.getElementById("analyticsBudget").innerText =
+        `₹${totalBudget}`;
+
+    const tripProgress =
+        Math.min((trips.length * 20), 100);
+
+    document.getElementById("tripProgressBar").style.width =
+        `${tripProgress}%`;
+
+    /* CARDS */
+
+    trips.forEach((trip, index) => {
 
         container.innerHTML += `
             <div class="modern-trip-card">
