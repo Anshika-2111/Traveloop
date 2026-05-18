@@ -51,8 +51,6 @@
 
     <div class="dashboard-main">
 
-        <!-- HERO -->
-
         <div class="dashboard-hero">
 
             <div>
@@ -95,8 +93,6 @@
             </div>
 
         </div>
-
-        <!-- ANALYTICS -->
 
         <div class="analytics-grid">
 
@@ -150,8 +146,6 @@
 
         </div>
 
-        <!-- TRIPS -->
-
         <div class="dashboard-section">
 
             <div class="section-top">
@@ -175,6 +169,8 @@
 <script src="script.js"></script>
 
 <script>
+
+const BASE_URL = "https://traveloop-17eg.onrender.com";
 
 const dashboardUser = JSON.parse(localStorage.getItem("user"));
 
@@ -210,7 +206,7 @@ function getTripImage(index){
 async function loadDashboard(){
 
     const res =
-        await fetch(`http://127.0.0.1:5000/trips/${dashboardUser.id}`);
+        await fetch(`${BASE_URL}/trips/${dashboardUser.id}`);
 
     const trips = await res.json();
 
@@ -225,8 +221,6 @@ async function loadDashboard(){
         totalBudget += Number(trip.budget || 0);
     });
 
-    /* ANALYTICS */
-
     document.getElementById("analyticsTrips").innerText =
         trips.length;
 
@@ -238,8 +232,6 @@ async function loadDashboard(){
 
     document.getElementById("tripProgressBar").style.width =
         `${tripProgress}%`;
-
-    /* CARDS */
 
     trips.forEach((trip, index) => {
 
@@ -347,7 +339,7 @@ async function deleteTrip(tripId){
     if(!confirmDelete) return;
 
     await fetch(
-        `http://127.0.0.1:5000/trips/${tripId}`,
+        `${BASE_URL}/trips/${tripId}`,
         {
             method:"DELETE"
         }

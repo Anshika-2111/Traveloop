@@ -1,8 +1,10 @@
 // =========================
-// GLOBAL USER
+// GLOBAL USER + API URL
 // =========================
 
 const user = JSON.parse(localStorage.getItem("user"));
+
+const BASE_URL = "https://traveloop-17eg.onrender.com";
 
 
 // =========================
@@ -56,7 +58,7 @@ async function signupUser(){
         return;
     }
 
-    const response = await fetch("http://127.0.0.1:5000/signup",{
+    const response = await fetch(`${BASE_URL}/signup`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"
@@ -115,7 +117,7 @@ async function loginUser(){
         return;
     }
 
-    const response = await fetch("http://127.0.0.1:5000/login",{
+    const response = await fetch(`${BASE_URL}/login`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"
@@ -218,7 +220,7 @@ async function createTrip(){
         return;
     }
 
-    const response = await fetch("http://127.0.0.1:5000/trips",{
+    const response = await fetch(`${BASE_URL}/trips`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"

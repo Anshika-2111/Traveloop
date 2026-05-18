@@ -112,6 +112,9 @@
 </div>
 
 <script>
+
+const BASE_URL = "https://traveloop-17eg.onrender.com";
+
 const plannerUser = JSON.parse(localStorage.getItem("user"));
 
 if(!plannerUser){
@@ -124,14 +127,20 @@ let currentStops = [];
 let currentTrip = null;
 
 async function loadTrips(){
-    const res = await fetch(`http://127.0.0.1:5000/trips/${plannerUser.id}`);
+
+    const res =
+        await fetch(`${BASE_URL}/trips/${plannerUser.id}`);
+
     allTrips = await res.json();
 
-    const selector = document.getElementById("tripSelector");
+    const selector =
+        document.getElementById("tripSelector");
 
-    selector.innerHTML = `<option value="">Select Trip</option>`;
+    selector.innerHTML =
+        `<option value="">Select Trip</option>`;
 
     allTrips.forEach(trip => {
+
         selector.innerHTML += `
             <option value="${trip.id}">
                 ${trip.title}
@@ -140,24 +149,34 @@ async function loadTrips(){
     });
 
     if(selectedTripId){
+
         selector.value = selectedTripId;
+
         loadTripDetails();
+
         loadStops();
     }
 }
 
 function changeTrip(){
-    selectedTripId = document.getElementById("tripSelector").value;
+
+    selectedTripId =
+        document.getElementById("tripSelector").value;
 
     if(!selectedTripId) return;
 
-    localStorage.setItem("selectedTripId", selectedTripId);
+    localStorage.setItem(
+        "selectedTripId",
+        selectedTripId
+    );
 
     loadTripDetails();
+
     loadStops();
 }
 
 function loadTripDetails(){
+
     const trip = allTrips.find(
         t => String(t.id) === String(selectedTripId)
     );
@@ -166,54 +185,75 @@ function loadTripDetails(){
 
     currentTrip = trip;
 
-    document.getElementById("plannerTripTitle").innerText = trip.title;
-    document.getElementById("plannerBudget").innerText = `₹${trip.budget}`;
-    document.getElementById("remainingBudget").innerText = `₹${trip.budget}`;
+    document.getElementById("plannerTripTitle").innerText =
+        trip.title;
 
-    const stopStart = document.getElementById("stopStartDate");
-    const stopEnd = document.getElementById("stopEndDate");
+    document.getElementById("plannerBudget").innerText =
+        `₹${trip.budget}`;
+
+    document.getElementById("remainingBudget").innerText =
+        `₹${trip.budget}`;
+
+    const stopStart =
+        document.getElementById("stopStartDate");
+
+    const stopEnd =
+        document.getElementById("stopEndDate");
 
     if(trip.start_date){
+
         stopStart.min = trip.start_date;
         stopEnd.min = trip.start_date;
+
         stopStart.value = trip.start_date;
     }
 
     if(trip.end_date){
+
         stopStart.max = trip.end_date;
         stopEnd.max = trip.end_date;
+
         stopEnd.value = trip.end_date;
     }
 }
 
 async function addStop(){
+
     if(!selectedTripId){
+
         alert("Please select a trip first");
+
         return;
     }
 
-    const city = document.getElementById("cityName").value.trim();
-    const country = document.getElementById("countryName").value.trim();
-    const startDate = document.getElementById("stopStartDate").value;
-    const endDate = document.getElementById("stopEndDate").value;
+    const city =
+        document.getElementById("cityName").value.trim();
+
+    const country =
+        document.getElementById("countryName").value.trim();
+
+    const startDate =
+        document.getElementById("stopStartDate").value;
+
+    const endDate =
+        document.getElementById("stopEndDate").value;
 
     if(!city || !country){
+
         alert("Please enter city and country");
+
         return;
     }
 
     if(!startDate || !endDate){
-        alert("Please select stop start and end date");
-        return;
-    }
 
-    if(new Date(endDate) < new Date(startDate)){
-        alert("Stop end date cannot be before start date");
+        alert("Please select stop start and end date");
+
         return;
     }
 
     const response = await fetch(
-        `http://127.0.0.1:5000/trips/${selectedTripId}/stops`,
+        `${BASE_URL}/trips/${selectedTripId}/stops`,
         {
             method:"POST",
             headers:{
@@ -230,61 +270,48 @@ async function addStop(){
 
     const data = await response.json();
 
-    document.getElementById("stopMsg").innerText = data.message;
+    document.getElementById("stopMsg").innerText =
+        data.message;
 
     document.getElementById("cityName").value = "";
     document.getElementById("countryName").value = "";
-
-    if(currentTrip){
-        document.getElementById("stopStartDate").value = currentTrip.start_date;
-        document.getElementById("stopEndDate").value = currentTrip.end_date;
-    }
 
     loadStops();
 }
 
 async function loadStops(){
+
     if(!selectedTripId) return;
 
     const res = await fetch(
-        `http://127.0.0.1:5000/trips/${selectedTripId}/stops`
+        `${BASE_URL}/trips/${selectedTripId}/stops`
     );
 
     const stops = await res.json();
 
     currentStops = stops;
 
-    document.getElementById("plannerStops").innerText = stops.length;
+    document.getElementById("plannerStops").innerText =
+        stops.length;
 
-    const stopSelect = document.getElementById("stopSelect");
+    const stopSelect =
+        document.getElementById("stopSelect");
 
-    stopSelect.innerHTML = `<option value="">Select City Stop</option>`;
+    stopSelect.innerHTML =
+        `<option value="">Select City Stop</option>`;
 
-    const container = document.getElementById("itineraryContainer");
+    const container =
+        document.getElementById("itineraryContainer");
 
     container.innerHTML = "";
 
     if(stops.length === 0){
+
         container.innerHTML = `
             <div class="empty-box">
                 No city stops yet.
             </div>
         `;
-
-        document.getElementById("activityTotal").innerText = "₹0";
-
-        const activityDate = document.getElementById("activityDate");
-        activityDate.value = "";
-        activityDate.removeAttribute("min");
-        activityDate.removeAttribute("max");
-
-        const trip = allTrips.find(
-            t => String(t.id) === String(selectedTripId)
-        );
-
-        if(trip){
-            document.getElementById("remainingBudget").innerText = `₹${trip.budget}`;
-        }
 
         return;
     }
@@ -292,12 +319,9 @@ async function loadStops(){
     let totalActivityCost = 0;
 
     for(const stop of stops){
+
         stopSelect.innerHTML += `
-            <option 
-                value="${stop.id}"
-                data-start="${stop.start_date}"
-                data-end="${stop.end_date}"
-            >
+            <option value="${stop.id}">
                 ${stop.city_name}
             </option>
         `;
@@ -310,7 +334,9 @@ async function loadStops(){
             <div class="timeline-dot"></div>
 
             <div class="timeline-content">
+
                 <div class="stop-top">
+
                     <div>
                         <h3>${stop.city_name}, ${stop.country}</h3>
                         <p>${stop.start_date} - ${stop.end_date}</p>
@@ -319,48 +345,46 @@ async function loadStops(){
                     <button onclick="deleteStop(${stop.id})">
                         Delete
                     </button>
+
                 </div>
 
                 <div id="activities-${stop.id}"></div>
+
             </div>
         `;
 
         container.appendChild(stopCard);
 
-        const activityCost = await loadActivities(stop.id);
+        const activityCost =
+            await loadActivities(stop.id);
 
         totalActivityCost += activityCost;
     }
 
-    document.getElementById("activityTotal").innerText = `₹${totalActivityCost}`;
+    document.getElementById("activityTotal").innerText =
+        `₹${totalActivityCost}`;
 
     const trip = allTrips.find(
         t => String(t.id) === String(selectedTripId)
     );
 
     if(trip){
-        const remaining = Number(trip.budget || 0) - totalActivityCost;
 
-        document.getElementById("remainingBudget").innerText = `₹${remaining}`;
+        const remaining =
+            Number(trip.budget || 0) - totalActivityCost;
 
-        if(remaining < 0){
-            document.getElementById("remainingBudget").style.color = "red";
-        }else{
-            document.getElementById("remainingBudget").style.color = "#2e1065";
-        }
+        document.getElementById("remainingBudget").innerText =
+            `₹${remaining}`;
     }
 }
 
 function updateActivityDate(){
-    const stopId = document.getElementById("stopSelect").value;
-    const activityDate = document.getElementById("activityDate");
 
-    if(!stopId){
-        activityDate.value = "";
-        activityDate.removeAttribute("min");
-        activityDate.removeAttribute("max");
-        return;
-    }
+    const stopId =
+        document.getElementById("stopSelect").value;
+
+    const activityDate =
+        document.getElementById("activityDate");
 
     const selectedStop = currentStops.find(
         stop => String(stop.id) === String(stopId)
@@ -370,59 +394,35 @@ function updateActivityDate(){
 
     activityDate.min = selectedStop.start_date;
     activityDate.max = selectedStop.end_date;
+
     activityDate.value = selectedStop.start_date;
 }
 
 async function addActivity(){
-    const stopId = document.getElementById("stopSelect").value;
+
+    const stopId =
+        document.getElementById("stopSelect").value;
 
     if(!stopId){
+
         alert("Please select a city stop first");
+
         return;
-    }
-
-    const selectedStop = currentStops.find(
-        stop => String(stop.id) === String(stopId)
-    );
-
-    const activityName = document.getElementById("activityName").value.trim();
-    const activityDate = document.getElementById("activityDate").value;
-
-    if(!activityName){
-        alert("Please enter activity name");
-        return;
-    }
-
-    if(!activityDate){
-        alert("Please select activity date");
-        return;
-    }
-
-    if(selectedStop){
-        if(new Date(activityDate) < new Date(selectedStop.start_date)){
-            alert("Activity date cannot be before stop start date");
-            return;
-        }
-
-        if(new Date(activityDate) > new Date(selectedStop.end_date)){
-            alert("Activity date cannot be after stop end date");
-            return;
-        }
     }
 
     const response = await fetch(
-        `http://127.0.0.1:5000/stops/${stopId}/activities`,
+        `${BASE_URL}/stops/${stopId}/activities`,
         {
             method:"POST",
             headers:{
                 "Content-Type":"application/json"
             },
             body: JSON.stringify({
-                name: activityName,
+                name: document.getElementById("activityName").value,
                 activity_type: document.getElementById("activityType").value,
                 cost: document.getElementById("activityCost").value,
                 duration: document.getElementById("activityDuration").value,
-                activity_date: activityDate,
+                activity_date: document.getElementById("activityDate").value,
                 notes: document.getElementById("activityNotes").value
             })
         }
@@ -430,7 +430,8 @@ async function addActivity(){
 
     const data = await response.json();
 
-    document.getElementById("activityMsg").innerText = data.message;
+    document.getElementById("activityMsg").innerText =
+        data.message;
 
     document.getElementById("activityName").value = "";
     document.getElementById("activityType").value = "";
@@ -438,22 +439,24 @@ async function addActivity(){
     document.getElementById("activityDuration").value = "";
     document.getElementById("activityNotes").value = "";
 
-    updateActivityDate();
     loadStops();
 }
 
 async function loadActivities(stopId){
+
     const res = await fetch(
-        `http://127.0.0.1:5000/stops/${stopId}/activities`
+        `${BASE_URL}/stops/${stopId}/activities`
     );
 
     const activities = await res.json();
 
-    const box = document.getElementById(`activities-${stopId}`);
+    const box =
+        document.getElementById(`activities-${stopId}`);
 
     box.innerHTML = "";
 
     if(activities.length === 0){
+
         box.innerHTML = `
             <p class="muted-text">
                 No activities added yet.
@@ -466,17 +469,20 @@ async function loadActivities(stopId){
     let cost = 0;
 
     activities.forEach(activity => {
+
         cost += Number(activity.cost || 0);
 
         box.innerHTML += `
             <div class="activity-card">
 
                 <div class="activity-top">
+
                     <h4>${activity.name}</h4>
 
                     <button onclick="deleteActivity(${activity.id})">
                         ✕
                     </button>
+
                 </div>
 
                 <p>${activity.activity_type}</p>
@@ -503,12 +509,9 @@ async function loadActivities(stopId){
 }
 
 async function deleteActivity(activityId){
-    const confirmDelete = confirm("Delete this activity?");
-
-    if(!confirmDelete) return;
 
     await fetch(
-        `http://127.0.0.1:5000/activities/${activityId}`,
+        `${BASE_URL}/activities/${activityId}`,
         {
             method:"DELETE"
         }
@@ -518,12 +521,9 @@ async function deleteActivity(activityId){
 }
 
 async function deleteStop(stopId){
-    const confirmDelete = confirm("Delete this stop and all activities?");
-
-    if(!confirmDelete) return;
 
     await fetch(
-        `http://127.0.0.1:5000/stops/${stopId}`,
+        `${BASE_URL}/stops/${stopId}`,
         {
             method:"DELETE"
         }
@@ -533,6 +533,7 @@ async function deleteStop(stopId){
 }
 
 loadTrips();
+
 </script>
 
 </body>
