@@ -440,11 +440,13 @@ document.getElementById("activityDuration").value = "";
 document.getElementById("activityNotes").value = "";
 
 document.getElementById("activityMsg").innerText =
-    "Activity added successfully! Redirecting...";
+    "Activity added successfully!";
+
+await loadStops();
 
 setTimeout(() => {
     window.location.href = "dashboard.html";
-}, 1000);
+}, 2000);
 }
 
 async function loadActivities(stopId){
