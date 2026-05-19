@@ -433,13 +433,18 @@ async function addActivity(){
     document.getElementById("activityMsg").innerText =
         data.message;
 
-    document.getElementById("activityName").value = "";
-    document.getElementById("activityType").value = "";
-    document.getElementById("activityCost").value = "";
-    document.getElementById("activityDuration").value = "";
-    document.getElementById("activityNotes").value = "";
+document.getElementById("activityName").value = "";
+document.getElementById("activityType").value = "";
+document.getElementById("activityCost").value = "";
+document.getElementById("activityDuration").value = "";
+document.getElementById("activityNotes").value = "";
 
-    loadStops();
+document.getElementById("activityMsg").innerText =
+    "Activity added successfully! Redirecting...";
+
+setTimeout(() => {
+    window.location.href = "dashboard.html";
+}, 1000);
 }
 
 async function loadActivities(stopId){
